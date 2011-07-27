@@ -2,7 +2,8 @@
 chef-solo-search
 ================
 
-This is a patch to add basic search() functionality to chef-solo.
+Chef-solo-search is a cookbook library to add data bags and search powers
+to chef-solo. Thanks for the initial idea and code goes to Brian Akins [0]
 Please see `Supported queries` for a list of query types which are supported.
 
 Requirements
@@ -87,3 +88,4 @@ Running tests is as simple as:
 
     % ruby tests/test_search.rb -v
 
+[0] http://lists.opscode.com/sympa/arc/chef/2011-02/msg00000.html
