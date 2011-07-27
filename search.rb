@@ -16,11 +16,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#  based on Brian Akins's patch:
-#    http://lists.opscode.com/sympa/arc/chef/2011-02/msg00000.html
-#
 
 if Chef::Config[:solo]
+  
+  require 'data_bags.rb'
   
   # Checks if a given `value` is equal to `match`
   # If value is an Array, then `match` is checked against each of the value's
@@ -177,35 +176,6 @@ if Chef::Config[:solo]
       end
     end
   end
-  
-  class Chef
-    module Mixin
-      module Language
-        # Hook into Chef which reads all items in a given `bag` and converts
-        # them into one single Hash
-        def data_bag(bag)
-          @solo_data_bags = {} if @solo_data_bags.nil?
-          unless @solo_data_bags[bag]
-            @solo_data_bags[bag] = {}
-            data_bag_path = Chef::Config[:data_bag_path]
-            Dir.glob(File.join(data_bag_path, bag, "*.json")).each do |f|
-              item = JSON.parse(IO.read(f))
-              @solo_data_bags[bag][item['id']] = item
-            end
-          end
-          @solo_data_bags[bag].keys
-        end
-
-        # Hook into Chef which returns the ruby representation of a given
-        # data_bag item
-        def data_bag_item(bag, item)
-          data_bag(bag) unless ( !@solo_data_bags.nil? && @solo_data_bags[bag])
-          @solo_data_bags[bag][item]
-        end
-
-      end
-    end
-  end
 
   class Chef
     class Recipe
@@ -249,5 +219,5 @@ if Chef::Config[:solo]
       end
     end
   end
-end
 
+end

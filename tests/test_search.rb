@@ -26,7 +26,7 @@ Chef::Config[:solo] = true
 Chef::Config[:data_bag_path] = "tests/data/data_bags"
 
 # load the extension
-require "data_bags_patch.rb"
+require "search.rb"
 
 def search(*args, &block)
   # wrapper around creating a new Recipe instance and calling search on it
