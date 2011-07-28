@@ -19,7 +19,21 @@
 
 if Chef::Config[:solo]
   
-  require 'data_bags.rb'
+  if (defined? require_relative).nil?
+    # defenition of 'require_relative' for ruby < 1.9, found on stackoverflow.com
+    def require_relative(relative_feature)
+      c = caller.first
+      fail "Can't parse #{c}" unless c.rindex(/:\d+(:in `.*')?$/)
+      file = $`
+      if /\A\((.*)\)/ =~ file # eval, etc.
+        raise LoadError, "require_relative is called in #{$1}"
+      end
+      absolute = File.expand_path(relative_feature, File.dirname(file))
+      require absolute
+    end
+  end
+  
+  require_relative 'data_bags.rb'
   
   # Checks if a given `value` is equal to `match`
   # If value is an Array, then `match` is checked against each of the value's
