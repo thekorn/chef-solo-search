@@ -79,6 +79,12 @@ Sample supported queries are:
 ### More complex queries:
     
     search(:users, "children:tom NOT gender:female AND age:42")
+    
+### special case: 'chef_environment:_default'
+
+Searching within the '_default' environment is also supported
+
+    search(:users, "age:35 AND chef_environment:_default")
 
 ## Running tests
 
