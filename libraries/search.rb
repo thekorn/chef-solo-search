@@ -55,6 +55,10 @@ if Chef::Config[:solo]
       return NilQuery.new(query)
     end
     
+    if query === "chef_environment:_default"
+      return NilQuery.new(query)
+    end
+    
     query.gsub!("[* TO *]", "*")
     if query.count("()") == 2 and query.start_with?("(") and query.end_with?(")")
       query.tr!("()", "")
