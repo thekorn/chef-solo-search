@@ -110,11 +110,11 @@ class TestSearch < Test::Unit::TestCase
   end
   
   def test_NOT_condition
-    nodes = search(:users, "children:tom NOT gender:female")
+    nodes = search(:users, "children:tom AND (NOT gender:female)")
     assert nodes.length == 1
-    nodes = search(:users, "children:tom NOT gender:female AND age:42")
+    nodes = search(:users, "children:tom AND (NOT gender:female) AND age:42")
     assert nodes.length == 1
-    nodes = search(:users, "children:tom NOT gender:female NOT age:42")
+    nodes = search(:users, "children:tom AND (NOT gender:female) AND (NOT age:42)")
     assert nodes.length == 0
   end
   

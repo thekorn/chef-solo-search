@@ -16,21 +16,29 @@ module Lucene
 
   class Term < Treetop::Runtime::SyntaxNode
     def match( value )
-      if self.text_value.end_with?("*")
-        value.to_s.start_with?(self.text_value.chomp("*"))
+      if value.is_a?(Array)
+        value.any?{ |x| self.match(x) }
       else
-        value.to_s == self.text_value
+        if self.text_value.end_with?("*")
+          value.to_s.start_with?(self.text_value.chomp("*"))
+        else
+          value.to_s == self.text_value
+        end
       end
     end
   end
 
   class Field < Treetop::Runtime::SyntaxNode
     def match( item )
-      name = self.elements[0].text_value
-      if item.has_key?(name)
-        self.elements[1].match(item[name])
+      if self.elements[0].text_value == "chef_environment" and self.elements[1].text_value == "_default"
+        true
       else
-        false
+        keys = self.elements[0].match(item)
+        if keys.nil?
+          false
+        else
+          keys.any?{ |key| self.elements[1].match(item[key]) }
+        end
       end
     end
   end
@@ -48,6 +56,18 @@ module Lucene
   end
   
   class FieldName < Treetop::Runtime::SyntaxNode
+    def match( item )
+      if self.text_value.end_with?("*")
+        part = self.text_value.chomp("*")
+        item.keys.collect{ |key| key.start_with?(part)? key: nil}.compact
+      else
+        if item.has_key?(self.text_value)
+          [self.text_value,]
+        else
+          nil
+        end
+      end
+    end
   end
 
   class Body < Treetop::Runtime::SyntaxNode
@@ -113,8 +133,10 @@ module Lucene
   end
   
   class Phrase < Treetop::Runtime::SyntaxNode
+    def match( value )
+      self.elements[0].match(value)
+    end
   end
-  
 end
 
 class Query
@@ -123,9 +145,14 @@ class Query
   @@parser = LuceneParser.new
 
   def self.parse(data)
+    if data.nil?
+      data = "*:*"
+    end
     tree = @@parser.parse(data)
     if tree.nil?
-      raise "Query #{data} is not supported"
+      msg = "Parse error at offset: #{@@parser.index}\n"
+      msg += "Reason: #{@@parser.failure_reason}"
+      raise "Query #{data} is not supported: #{msg}"
     end
     self.clean_tree(tree)
     tree
@@ -142,7 +169,3 @@ class Query
   end
 end
 
-t = Query.parse("(age:* OR age:78 OR !age:56)")
-#puts t
-#puts t.elements
-puts t.match({"age" => 35})
