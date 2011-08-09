@@ -138,6 +138,11 @@ class TestSearch < Test::Unit::TestCase
   end
   
   def test_check_escaped_chars
+    # it is not obvious to me how escaping works here, and how it works within chef
+    # Fact 1: the escaped queries are similar to the ones in the chef wiki
+    # Fact 2: the parser fails to parse this expressions
+    # Fact 3: "a:a::a" == "a:a\:\:a"
+    #   so the way escaping values is described in the wiki looks strange.
     nodes = search(:users, "tag:tag\:\:test")
     assert nodes.length == 1
     nodes = search(:users, "tag:tag::test")
