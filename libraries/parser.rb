@@ -15,6 +15,9 @@ end
 module Lucene
 
   class Term < Treetop::Runtime::SyntaxNode
+    # compares a query value and a value, tailing '*'-wildcards are handled correctly.
+    # Value can either be a string or an array, all other objects are converted
+    # to a string and than checked.
     def match( value )
       if value.is_a?(Array)
         value.any?{ |x| self.match(x) }
@@ -29,8 +32,11 @@ module Lucene
   end
 
   class Field < Treetop::Runtime::SyntaxNode
+    # simple field -> value matches, supporting tailing '*'-wildcards in keys
+    # as well as in values
     def match( item )
       if self.elements[0].text_value == "chef_environment" and self.elements[1].text_value == "_default"
+        # special case, 'chef_environment:_default' always matches
         true
       else
         keys = self.elements[0].match(item)
@@ -43,6 +49,9 @@ module Lucene
     end
   end
   
+  # we don't support range matches
+  # range of integers would be easy to implement
+  # but string ranges are hard
   class FiledRange < Treetop::Runtime::SyntaxNode
   end
   
@@ -103,6 +112,7 @@ module Lucene
     end
   end
   
+  # we don't support fuzzy string matching
   class FuzzyOp < Treetop::Runtime::SyntaxNode
   end
   
@@ -133,6 +143,7 @@ module Lucene
   end
   
   class Phrase < Treetop::Runtime::SyntaxNode
+    # a quoted ::Term
     def match( value )
       self.elements[0].match(value)
     end
@@ -140,11 +151,13 @@ module Lucene
 end
 
 class Query
+  # initialize the parser by using the grammar shipped with chef
   @@grammar = File.join(Chef::SolrQuery::QueryTransform.base_path, "lucene.treetop")
   Treetop.load(@@grammar)
   @@parser = LuceneParser.new
 
   def self.parse(data)
+    # parse the query into a query tree
     if data.nil?
       data = "*:*"
     end
@@ -161,6 +174,8 @@ class Query
   private
 
   def self.clean_tree(root_node)
+    # remove all SyntaxNode elements from the tree, we don't need them as
+    # the related ruby class already knowns what to do.
     return if root_node.elements.nil?
     root_node.elements.delete_if do |node|
       node.class.name == "Treetop::Runtime::SyntaxNode"
