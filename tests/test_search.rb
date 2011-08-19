@@ -143,17 +143,17 @@ class TestSearch < Test::Unit::TestCase
     # Fact 2: the parser fails to parse this expressions
     # Fact 3: "a:a::a" == "a:a\:\:a"
     #   so the way escaping values is described in the wiki looks strange.
-    nodes = search(:users, "tag:tag\:\:test")
+    nodes = search(:users, 'tag:tag\:\:test')
     assert nodes.length == 1
-    nodes = search(:users, "tag:tag::test")
+    nodes = search(:users, 'tag:tag::test')
     assert nodes.length == 1
-    nodes = search(:users, "tags:tag\:\:first")
+    nodes = search(:users, 'tags:tag\:\:first')
     assert nodes.length == 1
-    nodes = search(:users, "tags:tag::first")
+    nodes = search(:users, 'tags:tag::first')
     assert nodes.length == 1
-    nodes = search(:users, "tags:tag\:\:*")
+    nodes = search(:users, 'tags:tag\:\:*')
     assert nodes.length == 1
-    nodes = search(:users, "tags:tag::*")
+    nodes = search(:users, 'tags:tag::*')
     assert nodes.length == 1
   end
   
