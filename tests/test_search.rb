@@ -164,4 +164,12 @@ class TestSearch < Test::Unit::TestCase
     assert nodes == search(:users, "*:*")
   end
   
+  def test_wildcards
+    nodes = search(:users, "gender:f??ale")
+    assert nodes.length == 1
+    nodes = search(:users, "username:spee?y")
+    assert nodes.length == 1
+    nodes = search(:users, "username:spee*")
+    assert nodes.length == 1
+  end
 end

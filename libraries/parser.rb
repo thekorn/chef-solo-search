@@ -41,11 +41,7 @@ module Lucene
       if value.is_a?(Array)
         value.any?{ |x| self.match(x) }
       else
-        if self.text_value.end_with?("*")
-          value.to_s.start_with?(self.text_value.chomp("*"))
-        else
-          value.to_s == self.text_value
-        end
+        File.fnmatch(self.text_value, value.to_s)
       end
     end
   end
